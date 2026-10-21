@@ -32,6 +32,7 @@ use SP\Http\Address;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class TrackData extends DataModelBase
 {
     /**

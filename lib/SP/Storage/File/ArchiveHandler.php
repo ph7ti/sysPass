@@ -90,7 +90,13 @@ final class ArchiveHandler
         $this->extensionChecker->checkPharAvailable(true);
 
         $archive = new PharData($this->archive->getFile());
-        $archive->buildFromDirectory($directory, $regex);
+
+        if ($regex === null) {
+            $archive->buildFromDirectory($directory);
+        } else {
+            $archive->buildFromDirectory($directory, $regex);
+        }
+
         $archive->compress(Phar::GZ);
 
         // Delete the non-compressed archive

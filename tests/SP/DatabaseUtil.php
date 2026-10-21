@@ -68,7 +68,9 @@ class DatabaseUtil
         $data = (new DatabaseConnectionData())
             ->setDbHost(getenv('DB_SERVER'))
             ->setDbUser(getenv('DB_USER'))
-            ->setDbPass(getenv('DB_PASS'));
+            ->setDbPass(getenv('DB_PASS'))
+            ->setDbPort(getenv('DB_PORT') ?: null)
+            ->setDbSocket(getenv('DB_SOCKET') ?: null);
 
         return getDbHandler($data)->getConnectionSimple();
     }

@@ -203,7 +203,7 @@ final class XmlHandler implements XmlFileStorageInterface
                 $newNode->setAttribute('class', get_class($value));
                 $newNode->appendChild($this->Dom->createTextNode(base64_encode(serialize($value))));
             } else {
-                $newNode->appendChild($this->Dom->createTextNode(trim($value)));
+                $newNode->appendChild($this->Dom->createTextNode(trim((string)$value)));
             }
 
             $Node->appendChild($newNode);

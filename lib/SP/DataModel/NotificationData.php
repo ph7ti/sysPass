@@ -31,6 +31,7 @@ use SP\Core\Messages\MessageInterface;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class NotificationData implements DataModelInterface
 {
     /**

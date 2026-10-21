@@ -105,7 +105,7 @@ final class EventMessage implements MessageInterface
      */
     private function formatString($string)
     {
-        return strip_tags($string);
+        return strip_tags((string)$string);
     }
 
     /**

@@ -29,6 +29,7 @@ namespace SP\DataModel\ItemPreset;
  *
  * @package SP\DataModel\ItemPreset
  */
+#[\AllowDynamicProperties]
 class Password
 {
     const EXPIRE_TIME_MULTIPLIER = 86400;

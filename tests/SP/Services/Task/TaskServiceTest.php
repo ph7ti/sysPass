@@ -97,8 +97,8 @@ class TaskServiceTest extends TestCase
             sleep(1);
         }
 
-        $this->assertFileNotExists($task->getFileTask()->getFile());
-        $this->assertFileNotExists($task->getFileOut()->getFile());
+        $this->assertFileDoesNotExist($task->getFileTask()->getFile());
+        $this->assertFileDoesNotExist($task->getFileOut()->getFile());
     }
 
     /**

@@ -31,6 +31,7 @@ defined('APP_ROOT') || die();
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class UserProfileData extends DataModelBase implements DataModelInterface
 {
     /**

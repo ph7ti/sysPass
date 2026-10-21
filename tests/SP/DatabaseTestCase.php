@@ -25,9 +25,6 @@
 namespace SP\Tests;
 
 use PDO;
-use PHPUnit\DbUnit\Database\DefaultConnection;
-use PHPUnit\DbUnit\DataSet\IDataSet;
-use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit\Framework\TestCase;
 use SP\Core\Exceptions\SPException;
 use SP\Storage\Database\DatabaseConnectionData;
@@ -41,8 +38,6 @@ use SP\Storage\Database\DatabaseConnectionData;
  */
 abstract class DatabaseTestCase extends TestCase
 {
-    use TestCaseTrait;
-
     /**
      * @var DatabaseConnectionData
      */
@@ -56,36 +51,117 @@ abstract class DatabaseTestCase extends TestCase
      */
     private static $pdo;
     /**
-     * @var DefaultConnection
+     * @var FixtureConnection
      */
     protected $conn;
 
     /**
-     * Returns the test database connection.
+     * Loads the dataset before each test, replacing the PHPUnit DbUnit trait.
      *
-     * @return DefaultConnection
      * @throws SPException
      */
-    final public function getConnection()
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->loadDataSet($this->getDataSetFile());
+    }
+
+    /**
+     * Returns the test database connection.
+     *
+     * @return FixtureConnection
+     * @throws SPException
+     */
+    final public function getConnection(): FixtureConnection
     {
         if ($this->conn === null) {
             if (self::$pdo === null) {
                 self::$pdo = getDbHandler()->getConnection();
             }
 
-            $this->conn = $this->createDefaultDBConnection(self::$pdo, 'syspass');
+            $this->conn = new FixtureConnection(self::$pdo);
         }
 
         return $this->conn;
     }
 
     /**
-     * Returns the test dataset.
-     *
-     * @return IDataSet
+     * @return string
      */
-    protected function getDataSet()
+    protected function getDataSetFile(): string
     {
-        return $this->createMySQLXMLDataSet(RESOURCE_DIR . DIRECTORY_SEPARATOR . 'datasets' . DIRECTORY_SEPARATOR . self::$dataset);
+        return RESOURCE_DIR . DIRECTORY_SEPARATOR . 'datasets' . DIRECTORY_SEPARATOR . self::$dataset;
+    }
+
+    /**
+     * @param string $file
+     *
+     * @throws SPException
+     */
+    private function loadDataSet(string $file)
+    {
+        $this->getConnection();
+
+        $data = simplexml_load_file($file);
+
+        if ($data === false) {
+            static::fail(sprintf('Unable to load dataset "%s"', $file));
+        }
+
+        $data->registerXPathNamespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+
+        self::$pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            foreach ($data->database->table_data as $table) {
+                $tableName = (string)$table['name'];
+
+                self::$pdo->exec(sprintf('TRUNCATE TABLE `%s`', $tableName));
+
+                foreach ($table->row as $row) {
+                    $columns = [];
+                    $values = [];
+                    $binary = [];
+                    $null = [];
+
+                    foreach ($row->field as $field) {
+                        $attributes = $field->attributes('http://www.w3.org/2001/XMLSchema-instance');
+
+                        $columns[] = sprintf('`%s`', (string)$field['name']);
+                        $values[] = (string)$field;
+                        $binary[] = (string)$attributes['type'] === 'xs:hexBinary';
+                        $null[] = in_array(strtolower((string)$attributes['nil']), ['true', '1'], true);
+                    }
+
+                    if (empty($columns)) {
+                        continue;
+                    }
+
+                    $statement = self::$pdo->prepare(sprintf(
+                        'INSERT INTO `%s` (%s) VALUES (%s)',
+                        $tableName,
+                        implode(', ', $columns),
+                        implode(', ', array_fill(0, count($columns), '?'))
+                    ));
+
+                    foreach ($values as $index => $value) {
+                        if ($null[$index]) {
+                            $statement->bindValue($index + 1, null, PDO::PARAM_NULL);
+                        } else {
+                            $statement->bindValue(
+                                $index + 1,
+                                $binary[$index] ? pack('H*', $value) : $value,
+                                $binary[$index] ? PDO::PARAM_LOB : PDO::PARAM_STR
+                            );
+                        }
+                    }
+
+                    $statement->execute();
+                }
+            }
+        } finally {
+            self::$pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+        }
     }
 }

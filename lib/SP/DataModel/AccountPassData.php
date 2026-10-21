@@ -29,6 +29,7 @@ namespace SP\DataModel;
  *
  * @package DataModel
  */
+#[\AllowDynamicProperties]
 class AccountPassData extends DataModelBase implements DataModelInterface
 {
     /**

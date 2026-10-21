@@ -31,6 +31,7 @@ use SP\DataModel\AccountSearchVData;
  *
  * @package SP\DataModel\Dto
  */
+#[\AllowDynamicProperties]
 class AccountSearchResponse
 {
     /**

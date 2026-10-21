@@ -25,7 +25,6 @@
 namespace SP\Tests\SP\Core\Crypt;
 
 use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
-use phpseclib\Crypt\RSA;
 use PHPUnit\Framework\TestCase;
 use SP\Core\Crypt\CryptPKI;
 use SP\Core\Exceptions\SPException;
@@ -50,9 +49,9 @@ class CryptPKITest extends TestCase
      */
     public function testDecryptRSA()
     {
-        $length = (CryptPKI::KEY_SIZE / 8) - 11;
+        $length = CryptPKI::getMaxDataSize();
 
-        $random = PasswordUtil::generateRandomBytes($length);
+        $random = random_bytes($length);
 
         $data = $this->cryptPki->encryptRSA($random);
 
@@ -85,13 +84,11 @@ class CryptPKITest extends TestCase
      */
     public function testDecryptRSAWrongLength()
     {
-        $length = ((CryptPKI::KEY_SIZE / 8) - 11) + 1;
+        $random = random_bytes(CryptPKI::getMaxDataSize() + 1);
 
-        $random = PasswordUtil::generateRandomBytes($length);
+        $this->expectException(\LengthException::class);
 
-        $data = $this->cryptPki->encryptRSA($random);
-
-        $this->assertEquals($random, $this->cryptPki->decryptRSA($data));
+        $this->cryptPki->encryptRSA($random);
     }
 
     /**
@@ -103,7 +100,7 @@ class CryptPKITest extends TestCase
 
         $this->assertNotEmpty($key);
 
-        $this->assertRegExp('/^-----BEGIN PUBLIC KEY-----.*/', $key);
+        $this->assertMatchesRegularExpression('/^-----BEGIN PUBLIC KEY-----.*/', $key);
     }
 
     /**
@@ -115,7 +112,7 @@ class CryptPKITest extends TestCase
 
         $this->assertNotEmpty($key);
 
-        $this->assertRegExp('/^-----BEGIN RSA PRIVATE KEY-----.*/', $key);
+        $this->assertMatchesRegularExpression('/^-----BEGIN RSA PRIVATE KEY-----.*/', $key);
     }
 
     /**
@@ -124,9 +121,9 @@ class CryptPKITest extends TestCase
      */
     public function testEncryptRSA()
     {
-        $length = (CryptPKI::KEY_SIZE / 8) - 11;
+        $length = CryptPKI::getMaxDataSize();
 
-        $random = PasswordUtil::generateRandomBytes($length);
+        $random = random_bytes($length);
 
         $data = $this->cryptPki->encryptRSA($random);
 
@@ -134,8 +131,8 @@ class CryptPKITest extends TestCase
 
         $this->assertEquals($random, $this->cryptPki->decryptRSA($data));
 
-        // Encrypt a long message
-        $random = PasswordUtil::generateRandomBytes(128);
+        // Encrypt a message longer than the current max size of an old 1024-bit key
+        $random = random_bytes(128);
 
         $data = $this->cryptPki->encryptRSA($random);
 
@@ -169,16 +166,16 @@ class CryptPKITest extends TestCase
      *
      * @throws SPException
      */
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->cryptPki = new CryptPKI(new RSA());
+        $this->cryptPki = new CryptPKI();
     }
 
     /**
      * Tears down the fixture, for example, close a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         unlink(CryptPKI::PUBLIC_KEY_FILE);
         unlink(CryptPKI::PRIVATE_KEY_FILE);

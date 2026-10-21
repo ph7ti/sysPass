@@ -1,0 +1,14 @@
+.git
+.gitignore
+.kilo
+repomix-output-*.md
+vendor
+app/config
+app/cache
+app/backup
+app/temp
+app/plugins
+tests/_output
+tests/tmp
+tests/res/cache
+build/*.tar.gz

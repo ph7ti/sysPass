@@ -90,6 +90,32 @@ abstract class Cookie
     }
 
     /**
+     * Expires the cookie
+     *
+     * @return bool
+     */
+    public function deleteCookie()
+    {
+        if (APP_MODULE === 'tests') {
+            return true;
+        }
+
+        if (headers_sent()) {
+            logger('Headers already sent', 'ERROR');
+
+            return false;
+        }
+
+        return setcookie($this->cookieName, '', [
+            'expires' => time() - 42000,
+            'path' => Bootstrap::$WEBROOT,
+            'secure' => $this->request->isHttps(),
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+
+    /**
      * Returns cookie raw data
      *
      * @return bool|string
@@ -119,6 +145,12 @@ abstract class Cookie
             return false;
         }
 
-        return setcookie($this->cookieName, $data, 0, Bootstrap::$WEBROOT);
+        return setcookie($this->cookieName, $data, [
+            'expires' => 0,
+            'path' => Bootstrap::$WEBROOT,
+            'secure' => $this->request->isHttps(),
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
     }
 }

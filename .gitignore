@@ -59,9 +59,27 @@ tools/
 vendor/*
 doc/*
 build/*
+!build/Dockerfile
+!build/nginx.conf
+!build/php.ini
+!build/php-fpm.conf
+!build/syspass-entrypoint.sh
+!build/docker-compose.yml
 tests/_output/*
+tests/tmp/
+tests/res/cache/
+tests/.phpunit.result.cache
+tests/res/config.xml
+tests/res/sysPass_*.tar.gz
+repomix-output-*.md
 
 .phpstorm.meta.php
 composer.phar
 
 !.blank
+
+# Ignore .kilo files
+*.kilo
+
+# Ignore repomix file
+.repomix-output-ph7ti-sysPass.md

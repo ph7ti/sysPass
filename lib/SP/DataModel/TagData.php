@@ -31,6 +31,7 @@ defined('APP_ROOT') || die();
  *
  * @package SP\Mgmt\Tags
  */
+#[\AllowDynamicProperties]
 class TagData extends DataModelBase implements DataModelInterface
 {
     /**

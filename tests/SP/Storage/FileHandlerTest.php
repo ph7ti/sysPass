@@ -96,7 +96,6 @@ class FileHandlerTest extends TestCase
     /**
      * Comprobar un archivo válido
      *
-     * @doesNotPerformAssertions
      * @throws FileException
      */
     public function testCheckFileExists()
@@ -162,6 +161,6 @@ class FileHandlerTest extends TestCase
     {
         (new FileHandler(self::$validFile))->delete();
 
-        $this->assertFileNotExists(self::$validFile);
+        $this->assertFileDoesNotExist(self::$validFile);
     }
 }

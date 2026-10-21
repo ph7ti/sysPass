@@ -42,6 +42,18 @@ final class Event
      * @var EventMessage
      */
     private $eventMessage;
+    /**
+     * @var bool
+     */
+    private $cancelled = false;
+    /**
+     * @var string|null
+     */
+    private $redirect;
+    /**
+     * @var mixed
+     */
+    private $result;
 
     /**
      * Event constructor.
@@ -91,4 +103,54 @@ final class Event
         return $this->eventMessage;
     }
 
+    /**
+     * Cancels the event's default action
+     *
+     * @param string|null $redirect
+     *
+     * @return $this
+     */
+    public function cancel($redirect = null)
+    {
+        $this->cancelled = true;
+        $this->redirect = $redirect;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCancelled(): bool
+    {
+        return $this->cancelled;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRedirect()
+    {
+        return $this->redirect;
+    }
+
+    /**
+     * @param mixed $result
+     *
+     * @return $this
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
 }

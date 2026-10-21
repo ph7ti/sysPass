@@ -68,7 +68,7 @@ final class CryptSessionHandler extends SessionHandler
      *                           </p>
      * @since 5.4.0
      */
-    public function read($id)
+    public function read(string $id): string|false
     {
         $data = parent::read($id);
 
@@ -110,7 +110,7 @@ final class CryptSessionHandler extends SessionHandler
      *                             </p>
      * @since 5.4.0
      */
-    public function write($id, $data)
+    public function write(string $id, string $data): bool
     {
         try {
             $data = Crypt::encrypt($data, $this->key);

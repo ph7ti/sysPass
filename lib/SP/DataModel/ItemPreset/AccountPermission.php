@@ -29,6 +29,7 @@ namespace SP\DataModel\ItemPreset;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class AccountPermission
 {
     /**

@@ -33,6 +33,7 @@ defined('APP_ROOT') || die();
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class PublicLinkListData extends PublicLinkData
 {
     /**

@@ -28,6 +28,7 @@ namespace SP\Providers\Log;
 use DI\Container;
 use DI\DependencyException;
 use DI\NotFoundException;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use SP\Core\Events\Event;
 use SP\Core\Exceptions\InvalidClassException;
@@ -91,6 +92,9 @@ final class FileLogHandler extends LoggerBase
     {
         parent::initialize($dic);
 
-        $this->logger->pushHandler(new StreamHandler(LOG_FILE));
+        $handler = new StreamHandler(LOG_FILE);
+        $handler->setFormatter(new JsonFormatter(JsonFormatter::BATCH_MODE_NEWLINES, true, false, true));
+
+        $this->logger->pushHandler($handler);
     }
 }

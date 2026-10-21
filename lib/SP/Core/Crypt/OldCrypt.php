@@ -27,7 +27,7 @@ namespace SP\Core\Crypt;
 use SP\Bootstrap;
 use SP\Config\ConfigData;
 use SP\Core\Exceptions\SPException;
-use SP\Util\Checks;
+use phpseclib3\Crypt\Rijndael;
 
 defined('APP_ROOT') || die();
 
@@ -57,7 +57,7 @@ final class OldCrypt
     }
 
     /**
-     * Crear un salt utilizando mcrypt.
+     * Crear un salt aleatorio.
      *
      * @param string $salt
      * @param bool   $random
@@ -87,32 +87,29 @@ final class OldCrypt
      */
     public static function getIV()
     {
-        $source = MCRYPT_DEV_URANDOM;
-        $mcryptRes = self::getMcryptResource();
-
-        if (Checks::checkIsWindows() && (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300)) {
-            $source = MCRYPT_RAND;
-        }
-
-        // Crear el IV y asegurar que tiene una longitud de 32 bytes
-        do {
-            $cryptIV = mcrypt_create_iv(mcrypt_enc_get_iv_size($mcryptRes), $source);
-        } while ($cryptIV === false || strlen($cryptIV) < 32);
-
-        mcrypt_module_close($mcryptRes);
-
-        return $cryptIV;
+        return random_bytes(32);
     }
 
     /**
-     * Método para obtener un recurso del módulo mcrypt.
-     * Se utiliza el algoritmo RIJNDAEL_256 en modo CBC
+     * Creates a Rijndael-256 CBC cipher compatible with the legacy mcrypt data.
      *
-     * @return resource
+     * @param string $key
+     * @param string $iv
+     *
+     * @return Rijndael
      */
-    private static function getMcryptResource()
+    private static function getCipher($key, $iv): Rijndael
     {
-        return mcrypt_module_open(MCRYPT_RIJNDAEL_256, '', MCRYPT_MODE_CBC, '');
+        $key = substr(str_pad((string)$key, 32, "\0"), 0, 32);
+
+        $cipher = new Rijndael('cbc');
+        $cipher->setBlockLength(256);
+        $cipher->setKey($key);
+        $cipher->setIV($iv);
+        $cipher->disablePadding();
+        $cipher->setPreferredEngine('PHP');
+
+        return $cipher;
     }
 
     /**
@@ -146,13 +143,12 @@ final class OldCrypt
             return '';
         }
 
-        $mcryptRes = self::getMcryptResource();
+        $cipher = self::getCipher($strPassword, $cryptIV);
 
-        mcrypt_generic_init($mcryptRes, $strPassword, $cryptIV);
-        $strEncrypted = mcrypt_generic($mcryptRes, $strValue);
-        mcrypt_generic_deinit($mcryptRes);
+        $length = strlen($strValue);
+        $padLength = 32 - ($length % 32);
 
-        return $strEncrypted;
+        return $cipher->encrypt($strValue . str_repeat("\0", $padLength));
     }
 
     /**
@@ -203,7 +199,7 @@ final class OldCrypt
      */
     public static function checkCryptModule()
     {
-        return mcrypt_module_self_test(MCRYPT_RIJNDAEL_256);
+        return class_exists(Rijndael::class);
     }
 
     /**
@@ -237,14 +233,13 @@ final class OldCrypt
             return false;
         }
 
-        $mcryptRes = self::getMcryptResource();
-        @mcrypt_generic_init($mcryptRes, $password, $cryptIV);
-        $strDecrypted = trim(mdecrypt_generic($mcryptRes, $cryptData));
+        try {
+            $strDecrypted = self::getCipher($password, $cryptIV)->decrypt($cryptData);
+        } catch (\Throwable $e) {
+            return false;
+        }
 
-        mcrypt_generic_deinit($mcryptRes);
-        mcrypt_module_close($mcryptRes);
-
-        return $strDecrypted;
+        return trim(rtrim($strDecrypted, "\0"));
     }
 
     /**

@@ -60,7 +60,7 @@ class UserProfileServiceTest extends DatabaseTestCase
      * @throws DependencyException
      * @throws SPException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dic = setupContext();
 

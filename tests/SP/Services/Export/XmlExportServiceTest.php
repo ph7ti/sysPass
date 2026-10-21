@@ -59,7 +59,7 @@ class XmlExportServiceTest extends DatabaseTestCase
      * @throws NotFoundException
      * @throws ContextException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         array_map('unlink', glob(TMP_PATH . DIRECTORY_SEPARATOR . '*.xml'));
 

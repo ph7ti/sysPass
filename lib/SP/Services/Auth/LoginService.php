@@ -80,6 +80,7 @@ final class LoginService extends Service
     const STATUS_PASS_RESET = 7;
     const STATUS_PASS = 0;
     const STATUS_NONE = 100;
+    const STATUS_REDIRECT = 101;
 
     /**
      * @var UserLoginData
@@ -139,6 +140,19 @@ final class LoginService extends Service
     {
         $this->userLoginData->setLoginUser($this->request->analyzeString('user'));
         $this->userLoginData->setLoginPass($this->request->analyzeEncrypted('pass'));
+
+        // Pre-authentication hook: SSO providers may redirect, MFA may interrupt.
+        // It must run before checkUser()/loadMasterPass() so the master key is
+        // never decrypted for a user that has not completed every auth factor.
+        $loginBefore = new Event($this, EventMessage::factory()
+            ->addDescription(__u('Login before'))
+            ->addDetail(__u('User'), $this->userLoginData->getLoginUser()));
+
+        $this->eventDispatcher->notifyEvent('login.before', $loginBefore);
+
+        if ($loginBefore->isCancelled()) {
+            return new LoginResponse(self::STATUS_REDIRECT, $loginBefore->getRedirect());
+        }
 
         if ($this->trackService->checkTracking($this->trackRequest)) {
             $this->addTracking();

@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PHP 8.2 tests
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: syspass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_mysql, gd, gettext, ldap, mbstring, zip, dom, fileinfo, zlib, xml
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer files
+        run: composer validate --no-check-publish
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Create database schema
+        run: mysql -h 127.0.0.1 -P 3306 -u root syspass < schemas/dbstructure.sql
+
+      - name: Run core test suite
+        env:
+          DB_SERVER: 127.0.0.1
+          DB_NAME: syspass
+          DB_USER: root
+          DB_PASS: ""
+        run: php -d memory_limit=768M vendor/bin/phpunit -c tests/phpunit.xml --testsuite Core --no-coverage
+
+  container:
+    name: Container build and scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -f build/Dockerfile -t syspass:ci .
+
+      - name: Inspect image
+        run: docker image inspect syspass:ci --format '{{json .Config.Healthcheck}}'
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: syspass:ci
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH

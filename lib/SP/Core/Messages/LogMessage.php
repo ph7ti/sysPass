@@ -77,7 +77,7 @@ final class LogMessage extends MessageBase
      */
     private function formatString($string)
     {
-        return strip_tags($string);
+        return strip_tags((string)$string);
     }
 
     /**

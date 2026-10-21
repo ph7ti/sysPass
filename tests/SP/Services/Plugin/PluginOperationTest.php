@@ -59,7 +59,7 @@ class PluginOperationTest extends DatabaseTestCase
      * @throws ContextException
      * @throws DependencyException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dic = setupContext();
 
@@ -143,13 +143,13 @@ class PluginOperationTest extends DatabaseTestCase
      */
     public function testDelete()
     {
-        $this->assertTableRowCount('PluginData', 4);
+        self::assertEquals(4, $this->conn->getRowCount('PluginData'));
 
         /** @var PluginOperation $pluginOperation */
         $pluginOperation = self::$pluginOperation->call($this, 'Authenticator');
         $pluginOperation->delete(1);
 
-        $this->assertTableRowCount('PluginData', 3);
+        self::assertEquals(3, $this->conn->getRowCount('PluginData'));
     }
 
     /**

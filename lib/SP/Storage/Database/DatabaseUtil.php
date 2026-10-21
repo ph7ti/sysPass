@@ -170,7 +170,7 @@ final class DatabaseUtil
     public function escape($str)
     {
         try {
-            return $this->DBStorage->getConnection()->quote(trim($str));
+            return $this->DBStorage->getConnection()->quote(trim((string)$str));
         } catch (Exception $e) {
             processException($e);
         }

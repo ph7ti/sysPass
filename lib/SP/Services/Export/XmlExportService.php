@@ -239,9 +239,9 @@ final class XmlExportService extends Service
             $metaGenerator = $this->xml->createElement('Generator', 'sysPass');
             $metaVersion = $this->xml->createElement('Version', VersionUtil::getVersionStringNormalized());
             $metaTime = $this->xml->createElement('Time', time());
-            $metaUser = $this->xml->createElement('User', $userData->getLogin());
+            $metaUser = $this->xml->createElement('User', (string)$userData->getLogin());
             $metaUser->setAttribute('id', $userData->getId());
-            $metaGroup = $this->xml->createElement('Group', $userData->getUserGroupName());
+            $metaGroup = $this->xml->createElement('Group', (string)$userData->getUserGroupName());
             $metaGroup->setAttribute('id', $userData->getUserGroupId());
 
             $nodeMeta->appendChild($metaGenerator);
@@ -364,7 +364,7 @@ final class XmlExportService extends Service
         $arrStrFrom = ['&', '<', '>', '"', '\''];
         $arrStrTo = ['&#38;', '&#60;', '&#62;', '&#34;', '&#39;'];
 
-        return str_replace($arrStrFrom, $arrStrTo, $data);
+        return str_replace($arrStrFrom, $arrStrTo, (string)$data);
     }
 
     /**

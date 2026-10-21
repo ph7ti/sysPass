@@ -31,6 +31,7 @@ use SP\Services\User\UserLoginResponse;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class UserLoginData
 {
     /**

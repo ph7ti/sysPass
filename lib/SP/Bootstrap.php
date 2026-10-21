@@ -51,7 +51,7 @@ use SP\Services\Upgrade\UpgradeUtil;
 use SP\Util\Checks;
 use SP\Util\Filter;
 use SP\Util\VersionUtil;
-use Symfony\Component\Debug\Debug;
+use Symfony\Component\ErrorHandler\Debug;
 use Throwable;
 
 defined('APP_ROOT') || die();
@@ -297,7 +297,7 @@ final class Bootstrap
 
         if (!self::$checkPhpVersion) {
             throw new InitializationException(
-                sprintf(__('Required PHP version >= %s <= %s'), '7.3', '7.4'),
+                sprintf(__('Required PHP version >= %s < %s'), '8.2', '8.3'),
                 Core\Exceptions\SPException::ERROR,
                 __u('Please update the PHP version to run sysPass')
             );
@@ -367,6 +367,10 @@ final class Bootstrap
 
         // Avoid PHP session cookies from JavaScript
         ini_set('session.cookie_httponly', '1');
+        ini_set('session.cookie_secure', $this->request->isHttps() ? '1' : '0');
+        ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
         ini_set('session.save_handler', 'files');
     }
 

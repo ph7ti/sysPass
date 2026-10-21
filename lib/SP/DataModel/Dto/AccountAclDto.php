@@ -33,6 +33,7 @@ use SP\DataModel\ItemData;
  *
  * @package SP\DataModel\Dto
  */
+#[\AllowDynamicProperties]
 final class AccountAclDto
 {
     /**

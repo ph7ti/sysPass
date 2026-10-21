@@ -32,6 +32,7 @@ use SP\Http\Address;
  *
  * @package SP\DataModel\ItemPreset
  */
+#[\AllowDynamicProperties]
 class SessionTimeout
 {
     /**

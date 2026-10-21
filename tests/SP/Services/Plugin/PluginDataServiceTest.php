@@ -57,7 +57,7 @@ class PluginDataServiceTest extends DatabaseTestCase
      * @throws ContextException
      * @throws DependencyException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dic = setupContext();
 
@@ -143,11 +143,11 @@ class PluginDataServiceTest extends DatabaseTestCase
     {
         self::$service->delete('Authenticator');
 
-        $this->assertTableRowCount('PluginData', 2);
+        self::assertEquals(2, $this->conn->getRowCount('PluginData'));
 
         self::$service->delete('DokuWiki');
 
-        $this->assertTableRowCount('PluginData', 1);
+        self::assertEquals(1, $this->conn->getRowCount('PluginData'));
     }
 
     /**

@@ -92,7 +92,7 @@ final class Filter
      */
     public static function getString($value): string
     {
-        return filter_var(trim($value), FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        return strip_tags(trim((string)$value));
     }
 
     /**
@@ -102,6 +102,6 @@ final class Filter
      */
     public static function getRaw($value): string
     {
-        return filter_var(trim($value), FILTER_UNSAFE_RAW);
+        return filter_var(trim((string)$value), FILTER_UNSAFE_RAW);
     }
 }

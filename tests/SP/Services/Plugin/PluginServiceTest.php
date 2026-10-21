@@ -57,7 +57,7 @@ class PluginServiceTest extends DatabaseTestCase
      * @throws ContextException
      * @throws DependencyException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dic = setupContext();
 

@@ -24,6 +24,9 @@
 
 namespace SP\Core;
 
+use SP\Bootstrap;
+use SP\Http\Request;
+
 defined('APP_ROOT') || die();
 
 /**
@@ -34,12 +37,33 @@ defined('APP_ROOT') || die();
 final class SessionUtil
 {
     /**
-     * Limpiar la sesión del usuario
+     * Limpiar y destruir la sesión del usuario
+     *
+     * @param Request|null $request
      */
-    public static function cleanSession()
+    public static function cleanSession(?Request $request = null)
     {
-        foreach ($_SESSION as $key => $value) {
-            unset($_SESSION[$key]);
+        $_SESSION = [];
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+            session_destroy();
         }
+
+        if (headers_sent()) {
+            return;
+        }
+
+        $secure = $request !== null
+            ? $request->isHttps()
+            : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+
+        setcookie(session_name(), '', [
+            'expires' => time() - 42000,
+            'path' => Bootstrap::$WEBROOT,
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
     }
 }

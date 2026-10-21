@@ -94,7 +94,7 @@ if (!function_exists('\gettext')) {
  */
 function getRealIpAddress()
 {
-    return trim(shell_exec('ip a s eth0 | awk \'$1 == "inet" {print $2}\' | cut -d"/" -f1')) ?: '127.0.0.1';
+    return trim((string)shell_exec('ip a s eth0 | awk \'$1 == "inet" {print $2}\' | cut -d"/" -f1')) ?: '127.0.0.1';
 }
 
 /**
@@ -148,7 +148,9 @@ function getDbHandler(DatabaseConnectionData $connectionData = null)
             ->setDbHost(getenv('DB_SERVER'))
             ->setDbName(getenv('DB_NAME'))
             ->setDbUser(getenv('DB_USER'))
-            ->setDbPass(getenv('DB_PASS'));
+            ->setDbPass(getenv('DB_PASS'))
+            ->setDbPort(getenv('DB_PORT') ?: null)
+            ->setDbSocket(getenv('DB_SOCKET') ?: null);
     }
 
     return new MySQLHandler($connectionData);
@@ -189,7 +191,14 @@ function recreateDir($dir)
     } else {
         print 'Deleting ' . $dir . PHP_EOL;
 
-        // Delete tmp dir ...
-        array_map('unlink', glob($dir . DIRECTORY_SEPARATOR . '*'));
+        // Delete tmp dir contents
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($iterator as $item) {
+            $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
+        }
     }
 }

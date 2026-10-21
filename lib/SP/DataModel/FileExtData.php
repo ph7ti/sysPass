@@ -29,6 +29,7 @@ namespace SP\DataModel;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class FileExtData extends FileData
 {
     /**

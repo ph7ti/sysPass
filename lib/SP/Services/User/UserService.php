@@ -89,7 +89,7 @@ final class UserService extends Service
             ->setIsChangedPass($userData->isChangedPass())
             ->setIsChangePass($userData->isChangePass())
             ->setIsDisabled($userData->isDisabled())
-            ->setLastUpdate((int)strtotime($userData->getLastUpdate()));
+            ->setLastUpdate($userData->getLastUpdate() !== null ? (int)strtotime($userData->getLastUpdate()) : 0);
     }
 
     /**

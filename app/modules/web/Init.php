@@ -320,7 +320,24 @@ final class Init extends ModuleBase
     private function initUserSession()
     {
         $lastActivity = $this->context->getLastActivity();
+        $startActivity = $this->context->getStartActivity();
+        $absoluteTimeout = $this->configData->getSessionTimeoutAbsolute();
         $inMaintenance = $this->configData->isMaintenance();
+
+        // Absolute session timeout (not renewed by activity)
+        if ($this->context->isLoggedIn()
+            && $startActivity > 0
+            && $absoluteTimeout > 0
+            && time() > ($startActivity + $absoluteTimeout)
+        ) {
+            if ($this->router->request()->cookies()->get(session_name()) !== null) {
+                $this->router->response()->cookie(session_name(), '', time() - 42000);
+            }
+
+            SessionContext::restart();
+
+            return;
+        }
 
         // Session timeout
         if ($lastActivity > 0

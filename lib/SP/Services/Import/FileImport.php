@@ -156,7 +156,7 @@ final class FileImport
      */
     protected function autodetectEOL()
     {
-        ini_set('auto_detect_line_endings', true);
+        // Line endings are auto-detected since PHP 8.1.
     }
 
     /**

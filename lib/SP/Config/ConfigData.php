@@ -282,6 +282,10 @@ final class ConfigData implements JsonSerializable
      */
     private $sessionTimeout = 300;
     /**
+     * @var int
+     */
+    private $sessionTimeoutAbsolute = 28800;
+    /**
      * @var string
      */
     private $siteLang;
@@ -1530,6 +1534,26 @@ final class ConfigData implements JsonSerializable
     }
 
     /**
+     * @return int
+     */
+    public function getSessionTimeoutAbsolute()
+    {
+        return $this->sessionTimeoutAbsolute;
+    }
+
+    /**
+     * @param int $sessionTimeoutAbsolute
+     *
+     * @return $this
+     */
+    public function setSessionTimeoutAbsolute($sessionTimeoutAbsolute)
+    {
+        $this->sessionTimeoutAbsolute = (int)$sessionTimeoutAbsolute;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getSiteLang()
@@ -1857,7 +1881,7 @@ final class ConfigData implements JsonSerializable
      *        which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return get_object_vars($this);
     }

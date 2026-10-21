@@ -24,7 +24,7 @@
 
 namespace SP\Tests;
 
-use Goutte\Client;
+use Symfony\Component\BrowserKit\HttpBrowser as Client;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\BrowserKit\Response;
@@ -57,7 +57,13 @@ abstract class WebTestCase extends TestCase
      */
     protected static function createClient(array $server = [])
     {
-        return new Client($server);
+        $client = new Client();
+
+        foreach ($server as $name => $value) {
+            $client->setServerParameter($name, $value);
+        }
+
+        return $client;
     }
 
     /**
@@ -72,7 +78,7 @@ abstract class WebTestCase extends TestCase
         /** @var Response $response */
         $response = $client->getResponse();
 
-        self::assertEquals($httpCode, $response->getStatus());
+        self::assertEquals($httpCode, $response->getStatusCode());
         self::assertEquals('application/json; charset=utf-8', $response->getHeader('Content-Type'));
 
         return json_decode($response->getContent());

@@ -30,6 +30,7 @@ namespace SP\DataModel;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class CustomFieldTypeData extends DataModelBase implements DataModelInterface
 {
     /**

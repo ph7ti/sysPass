@@ -46,7 +46,9 @@ final class Hash
      */
     public static function checkHashKey($key, $hash)
     {
-        return password_verify(self::getKey($key), $hash);
+        $key = (string)$key;
+
+        return password_verify(self::getKey($key), (string)$hash);
     }
 
     /**
@@ -59,6 +61,8 @@ final class Hash
      */
     private static function getKey(&$key, $isCheck = true)
     {
+        $key = (string)$key;
+
         if (mb_strlen($key) > self::MAX_KEY_LENGTH) {
             $key = hash('sha256', $key);
 

@@ -52,7 +52,7 @@ class ConfigRepositoryTest extends DatabaseTestCase
      * @throws NotFoundException
      * @throws ContextException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dic = setupContext();
 

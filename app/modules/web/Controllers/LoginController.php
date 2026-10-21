@@ -31,6 +31,8 @@ use SP\Bootstrap;
 use SP\Core\Context\SessionContext;
 use SP\Core\Events\Event;
 use SP\Core\Events\EventMessage;
+use SP\Core\Crypt\SecureKeyCookie;
+use SP\Core\Crypt\UUIDCookie;
 use SP\Core\SessionUtil;
 use SP\Http\Uri;
 use SP\Modules\Web\Controllers\Helpers\LayoutHelper;
@@ -62,7 +64,7 @@ final class LoginController extends ControllerBase
             $from = $this->getSignedUriFromRequest();
             $loginService->setFrom($from);
 
-            $loginResponmse = $loginService->doLogin();
+            $loginResponse = $loginService->doLogin();
 
             $this->checkForwarded();
 
@@ -78,14 +80,16 @@ final class LoginController extends ControllerBase
                 return $uri->getUri();
             };
 
-            $this->eventDispatcher->notifyEvent('login.finish',
-                new Event($this,
-                    EventMessage::factory()
-                        ->addExtra('redirect', $redirector))
-            );
+            if ($loginResponse->getStatus() !== LoginService::STATUS_REDIRECT) {
+                $this->eventDispatcher->notifyEvent('login.finish',
+                    new Event($this,
+                        EventMessage::factory()
+                            ->addExtra('redirect', $redirector))
+                );
+            }
 
             return $this->returnJsonResponseData([
-                'url' => $this->session->getTrasientKey('redirect') ?: $loginResponmse->getRedirect()
+                'url' => $this->session->getTrasientKey('redirect') ?: $loginResponse->getRedirect()
             ]);
         } catch (Exception $e) {
             processException($e);
@@ -128,7 +132,10 @@ final class LoginController extends ControllerBase
                     ->addDetail(__u('Total time'), $totalTime . ' min.'))
             );
 
-            SessionUtil::cleanSession();
+            SecureKeyCookie::factory($this->request)->deleteCookie();
+            UUIDCookie::factory($this->request)->deleteCookie();
+
+            SessionUtil::cleanSession($this->request);
 
             $this->session->setAppStatus(SessionContext::APP_STATUS_LOGGEDOUT);
 

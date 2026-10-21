@@ -32,6 +32,7 @@ use SP\Util\Filter;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class ItemSearchData
 {
     const ORDER_ASC = 'ASC';

@@ -56,7 +56,7 @@ class CustomFieldDefRepositoryTest extends DatabaseTestCase
      * @throws ContextException
      * @throws DependencyException
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $dic = setupContext();
 
@@ -290,7 +290,7 @@ class CustomFieldDefRepositoryTest extends DatabaseTestCase
     /**
      * Performs operation returned by getSetUpOperation().
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

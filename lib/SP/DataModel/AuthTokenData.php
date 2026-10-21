@@ -31,6 +31,7 @@ use SP\Core\Crypt\Vault;
  *
  * @package SP\DataModel
  */
+#[\AllowDynamicProperties]
 class AuthTokenData extends DataModelBase implements DataModelInterface
 {
     /**

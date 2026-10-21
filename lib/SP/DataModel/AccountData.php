@@ -34,6 +34,7 @@ use SP\Http\Json;
  *
  * @package SP\Account
  */
+#[\AllowDynamicProperties]
 class AccountData extends DataModelBase implements JsonSerializable, DataModelInterface
 {
     /**
@@ -404,7 +405,7 @@ class AccountData extends DataModelBase implements JsonSerializable, DataModelIn
      *        which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $data = get_object_vars($this);
 

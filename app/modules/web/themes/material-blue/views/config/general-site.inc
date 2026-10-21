@@ -127,6 +127,24 @@ use SP\Mvc\View\Template;
     </tr>
     <tr>
         <td class="descField">
+            <?php echo __('Absolute session timeout (s)'); ?>
+        </td>
+        <td class="valField">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input id="session_timeout_absolute" name="session_timeout_absolute" type="number"
+                       min="0" step="300"
+                       pattern="[0-9]{2,5}"
+                       class="mdl-textfield__input mdl-color-text--indigo-400"
+                       maxlength="6"
+                       value="<?php echo $configData->getSessionTimeoutAbsolute(); ?>"
+                       required/>
+                <label class="mdl-textfield__label"
+                       for="session_timeout_absolute"><?php echo __('Absolute session timeout (s)'); ?></label>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td class="descField">
             <?php echo __('Application URL'); ?>
             <div id="help-app_url"
                  class="icon material-icons <?php echo $icons->getIconHelp()->getClass(); ?>"><?php echo $icons->getIconHelp()->getIcon(); ?></div>

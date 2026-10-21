@@ -30,6 +30,7 @@ namespace SP\DataModel\Dto;
  *
  * @package SP\DataModel\Dto
  */
+#[\AllowDynamicProperties]
 class ConfigRequest
 {
     /**

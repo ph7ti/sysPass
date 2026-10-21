@@ -52,23 +52,20 @@ function logger($data, $type = 'DEBUG')
     $date = date('Y-m-d H:i:s');
     $caller = getLastCaller();
 
-    if (is_scalar($data)) {
-        $line = sprintf(LOG_FORMAT_OWN, $date, $type, $data, $caller);
-    } else {
-        $line = sprintf(LOG_FORMAT_OWN, $date, $type, print_r($data, true), $caller);
-    }
+    $record = [
+        'date' => $date,
+        'level' => $type,
+        'message' => is_scalar($data) ? (string)$data : print_r($data, true),
+        'caller' => $caller,
+    ];
+
+    $line = json_encode($record, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
 
     $useOwn = (!defined('LOG_FILE')
         || !error_log($line, 3, LOG_FILE)
     );
 
     if ($useOwn === false) {
-        if (is_scalar($data)) {
-            $line = sprintf(LOG_FORMAT, $type, $data, $caller);
-        } else {
-            $line = sprintf(LOG_FORMAT, $type, print_r($data, true), $caller);
-        }
-
         error_log($line);
     }
 }
@@ -217,6 +214,41 @@ function _t($domain, $message, $translate = true)
     return $translate === true && $message !== '' && mb_strlen($message) < 4096 ? dgettext($domain, $message) : $message;
 }
 
+if (!function_exists('gettext')) {
+    function gettext($message)
+    {
+        return $message;
+    }
+}
+
+if (!function_exists('dgettext')) {
+    function dgettext($domain, $message)
+    {
+        return $message;
+    }
+}
+
+if (!function_exists('bindtextdomain')) {
+    function bindtextdomain($domain, $directory)
+    {
+        return $directory;
+    }
+}
+
+if (!function_exists('textdomain')) {
+    function textdomain($domain)
+    {
+        return $domain;
+    }
+}
+
+if (!function_exists('bind_textdomain_codeset')) {
+    function bind_textdomain_codeset($domain, $codeset)
+    {
+        return $codeset;
+    }
+}
+
 /**
  * Capitalización de cadenas multi byte
  *
@@ -224,9 +256,11 @@ function _t($domain, $message, $translate = true)
  *
  * @return string
  */
-function mb_ucfirst($string)
-{
-    return mb_strtoupper(mb_substr($string, 0, 1));
+if (!function_exists('mb_ucfirst')) {
+    function mb_ucfirst($string)
+    {
+        return mb_strtoupper(mb_substr($string, 0, 1));
+    }
 }
 
 /**
